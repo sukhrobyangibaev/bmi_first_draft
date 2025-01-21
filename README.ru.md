@@ -14,8 +14,8 @@
 
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/yourusername/thesis-generator.git
-cd thesis-generator
+git clone https://github.com/sukhrobyangibaev/bmi_first_draft.git
+cd bmi_first_draft
 ```
 
 2. Установите необходимые зависимости:

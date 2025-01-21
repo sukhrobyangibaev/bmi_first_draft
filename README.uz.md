@@ -14,8 +14,8 @@ Ushbu avtomatlashtirilgan vosita manba kod fayllarini tahlil qiladi va API integ
 
 1. Repozitoriyni klonlang:
 ```bash
-git clone https://github.com/yourusername/thesis-generator.git
-cd thesis-generator
+git clone https://github.com/sukhrobyangibaev/bmi_first_draft.git
+cd bmi_first_draft
 ```
 
 2. Kerakli bog'liqliklarni o'rnating:

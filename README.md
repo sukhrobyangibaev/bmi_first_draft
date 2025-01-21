@@ -14,8 +14,8 @@ An automated tool that analyzes source code files and generates a structured the
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/thesis-generator.git
-cd thesis-generator
+git clone https://github.com/sukhrobyangibaev/bmi_first_draft.git
+cd bmi_first_draft
 ```
 
 2. Install required dependencies:
