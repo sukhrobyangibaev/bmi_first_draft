@@ -1,12 +1,12 @@
 # Thesis Generator 📚
 
-An automated tool that analyzes source code files and generates a structured thesis document.
+An automated tool that analyzes source code files and generates a structured thesis document using Large Language Models through API integration.
 
 ## Prerequisites ✅
 
 - Python 3.8 or higher
 - Access to an OpenAI-compatible API (Google, Anthropic, or OpenAI)
-- Project source code files for analysis
+- **Project source code files for analysis**
 
 ## Installation 🛠️
 
@@ -50,7 +50,10 @@ Important configuration notes:
 
 ## Usage 🚀
 
-1. Place your project source code files in the `project_files` directory.
+1. Place your project's main source code files in the `project_files` directory:
+   - Include only your core project files
+   - Do not include external libraries, virtual environments, or dependency files
+   - Example: If you have a Python project, include your `.py` files but not `venv/` or `site-packages/`
 
 2. Run the thesis generator:
 ```bash
