@@ -2,3 +2,4 @@
 .env 
 project_files/
 draft/
+__pycache__/

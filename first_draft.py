@@ -3,20 +3,9 @@ from pydantic import BaseModel
 import os
 import time
 from tqdm import tqdm
-from dotenv import load_dotenv
+from config import Config
 
-load_dotenv()
-
-class Config:
-    def __init__(self):
-        self.API_KEY = os.environ.get("API_KEY")
-        self.BASE_URL = os.environ.get("BASE_URL")
-        self.MODEL = os.environ.get("MODEL")
-        self.LOW_RATE_LIMITS = os.environ.get("LOW_RATE_LIMITS") == "true"
-        self.PROJECT_FILES_DIR = os.environ.get("PROJECT_FILES_DIR")
-        self.TRANSLATION_LANG = os.environ.get("TRANSLATION_LANG")
-
-config = Config()
+config = Config.from_env()
 
 # Calculate total steps based on actual operations
 TOTAL_STEPS = 13  # Base steps for English content
