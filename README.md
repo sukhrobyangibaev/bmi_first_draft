@@ -51,7 +51,7 @@ Important configuration notes:
 - **API_KEY**: Get your free Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
 - **BASE_URL**: Keep the default value when using Gemini API
 - **LOW_RATE_LIMITS**: Leave as `true` when using free Gemini API key (adds necessary request delays)
-- **MODEL**: Available models can be found in [Gemini API documentation](https://ai.google.dev/gemini-api/docs/models/gemini). Currently, `gemini-exp-1206` provides the best results
+- **MODEL**: Available models can be found in [Gemini API documentation](https://ai.google.dev/gemini-api/docs/models/gemini). Currently, `gemini-exp-1206` provides the best results. If you encounter errors with this model, use `gemini-2.0-flash-exp` as a reliable alternative
 - **PROJECT_FILES_DIR**: Create a folder with this name to store your source code files
 - **TRANSLATE**: Set to `true` if you want translation, `false` if you only need English
 - **TRANSLATION_LANG**: Use `RU` for Russian translation or `UZ` for Uzbek translation

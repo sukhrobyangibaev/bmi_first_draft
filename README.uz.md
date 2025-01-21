@@ -51,7 +51,7 @@ Muhim konfiguratsiya eslatmalari:
 - **API_KEY**: [Google AI Studio](https://aistudio.google.com/app/apikey) dan bepul Gemini API kalitingizni oling
 - **BASE_URL**: Gemini API'dan foydalanayotganda standart qiymatni saqlang
 - **LOW_RATE_LIMITS**: Bepul Gemini API kalitidan foydalanayotganda `true` qiymatida qoldiring (kerakli so'rov kechikishlarini qo'shadi)
-- **MODEL**: Mavjud modellarni [Gemini API hujjatlari](https://ai.google.dev/gemini-api/docs/models/gemini)da topish mumkin. Hozirda `gemini-exp-1206` eng yaxshi natijalarni beradi
+- **MODEL**: Mavjud modellarni [Gemini API hujjatlari](https://ai.google.dev/gemini-api/docs/models/gemini)da topish mumkin. Hozirda `gemini-exp-1206` eng yaxshi natijalarni beradi. Agar bu model bilan xatoliklar yuz bersa, ishonchli muqobil sifatida `gemini-2.0-flash-exp` dan foydalaning
 - **PROJECT_FILES_DIR**: Manba kod fayllaringizni saqlash uchun ushbu nom bilan papka yarating
 - **TRANSLATE**: Agar tarjima kerak bo'lsa `true` ga, faqat ingliz tili kerak bo'lsa `false` ga o'rnating
 - **TRANSLATION_LANG**: Ruscha tarjima uchun `RU` yoki O'zbekcha tarjima uchun `UZ` dan foydalaning
