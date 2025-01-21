@@ -1,2 +1,4 @@
 # Environment variables
 .env 
+project_files/
+draft/

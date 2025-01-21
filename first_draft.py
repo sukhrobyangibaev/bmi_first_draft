@@ -54,20 +54,44 @@ CLIENT = OpenAI(
     base_url=config.BASE_URL
 )
 
-def get_chat_completion(system_message, user_message):
-    """Generates a chat completion. Raises an exception if the API call fails."""
+def get_chat_completion(system_message, user_message, max_retries=3, base_delay=5):
+    """Generates a chat completion with retry logic for handling temporary API failures.
+    
+    Args:
+        system_message: The system message for the chat
+        user_message: The user message for the chat
+        max_retries: Maximum number of retry attempts (default: 3)
+        base_delay: Base delay between retries in seconds (default: 5)
+    
+    Returns:
+        The chat completion content
+        
+    Raises:
+        Exception: If all retry attempts fail
+    """
     if config.LOW_RATE_LIMITS:
         time.sleep(10)
 
-    response = CLIENT.chat.completions.create(
-        model=config.MODEL,
-        n=1,
-        messages=[
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": user_message}
-        ]
-    )
-    return response.choices[0].message.content
+    for attempt in range(max_retries):
+        try:
+            response = CLIENT.chat.completions.create(
+                model=config.MODEL,
+                n=1,
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": user_message}
+                ]
+            )
+            return response.choices[0].message.content
+            
+        except Exception as e:
+            if attempt == max_retries - 1:  # Last attempt
+                raise Exception(f"Failed after {max_retries} attempts. Last error: {str(e)}")
+            
+            # Calculate exponential backoff delay
+            delay = base_delay * (2 ** attempt)  # 5, 10, 20 seconds
+            print(f"Attempt {attempt + 1} failed. Retrying in {delay} seconds... Error: {str(e)}")
+            time.sleep(delay)
 
 pbar.update(1)
 # --------------------------------------
