@@ -735,51 +735,52 @@ if not config.TRANSLATION_LANG:
 translation_lang = config.TRANSLATION_LANG
 target_language = "Uzbek" if translation_lang == "UZ" else "Russian" if translation_lang == "RU" else "Unknown"
 
-sys_msg_translate_uz = """You are a professional translator specializing in academic texts. 
+# Define section headers based on translation language
+section_header = "QISM" if translation_lang == "UZ" else "ЧАСТЬ" if translation_lang == "RU" else "PART"
+
+sys_msg_translate = """You are a professional translator specializing in academic texts. 
 I will provide you with a section of my graduation thesis written in English. 
 Your task is to translate it into {}, maintaining a formal and academic tone throughout. 
 Please provide the translation as plain text only, 
 without any markdown formatting or additional commentary.""".format(target_language)
 
 update_progress(f"Translating introduction to {target_language}")
-PART_INTRO_uz = get_chat_completion(sys_msg_translate_uz, PART_INTRO)
+PART_INTRO_translated = get_chat_completion(sys_msg_translate, PART_INTRO)
 
 update_progress(f"Translating Part I (Title & Section 1.1)")
-PART_1_TITLE_uz = get_chat_completion(sys_msg_translate_uz, PART_1_TITLE)
+PART_1_TITLE_translated = get_chat_completion(sys_msg_translate, PART_1_TITLE)
 
 update_progress(f"Translating section 1.1-§ to {target_language}")
-PART_1_1_TEXT_uz = get_chat_completion(sys_msg_translate_uz, PART_1_1_TEXT)
+PART_1_1_TEXT_translated = get_chat_completion(sys_msg_translate, PART_1_1_TEXT)
 
 update_progress(f"Translating section 1.2-§ to {target_language}")
-PART_1_2_TEXT_uz = get_chat_completion(sys_msg_translate_uz, PART_1_2_TEXT)
+PART_1_2_TEXT_translated = get_chat_completion(sys_msg_translate, PART_1_2_TEXT)
 
 update_progress(f"Translating section 1.3-§ to {target_language}")
-PART_1_3_TEXT_uz = get_chat_completion(sys_msg_translate_uz, PART_1_3_TEXT)
-
-update_progress(f"Translating Part I (Sections 1.2-1.3)")
+PART_1_3_TEXT_translated = get_chat_completion(sys_msg_translate, PART_1_3_TEXT)
 
 update_progress(f"Translating PART II title to {target_language}")
-PART_2_TITLE_uz = get_chat_completion(sys_msg_translate_uz, PART_2_TITLE)
+PART_2_TITLE_translated = get_chat_completion(sys_msg_translate, PART_2_TITLE)
 
 update_progress(f"Translating section 2.1-§ to {target_language}")
-PART_2_1_TEXT_uz = get_chat_completion(sys_msg_translate_uz, PART_2_1_TEXT)
+PART_2_1_TEXT_translated = get_chat_completion(sys_msg_translate, PART_2_1_TEXT)
 
 update_progress(f"Translating section 2.2-§ to {target_language}")
-PART_2_2_TEXT_uz = get_chat_completion(sys_msg_translate_uz, PART_2_2_TEXT)
+PART_2_2_TEXT_translated = get_chat_completion(sys_msg_translate, PART_2_2_TEXT)
 
 update_progress(f"Translating section 2.3-§ to {target_language}")
-PART_2_3_TEXT_uz = get_chat_completion(sys_msg_translate_uz, PART_2_3_TEXT)
+PART_2_3_TEXT_translated = get_chat_completion(sys_msg_translate, PART_2_3_TEXT)
 
 update_progress(f"Translating conclusion to {target_language}")
-PART_CONCLUSION_uz = get_chat_completion(sys_msg_translate_uz, PART_CONCLUSION)
+PART_CONCLUSION_translated = get_chat_completion(sys_msg_translate, PART_CONCLUSION)
 
 update_progress(f"Translating thesis plan to {target_language}")
-THESIS_PLAN_uz = get_chat_completion(sys_msg_translate_uz, THESIS_PLAN)
+THESIS_PLAN_translated = get_chat_completion(sys_msg_translate, THESIS_PLAN)
 
-THESIS_MAIN_TEXT_UZ = """
+THESIS_MAIN_TEXT_TRANSLATED = """
 {}
 
-I QISM: {}
+{} I: {}
 
 1.1-§. {}
 
@@ -787,7 +788,7 @@ I QISM: {}
 
 1.3-§. {}
 
-II QISM: {}
+{} II: {}
 
 2.1-§. {}
 
@@ -799,19 +800,21 @@ II QISM: {}
   
 {} 
   
-ILOVA
+{}
 """.format(
-    PART_INTRO_uz,
-    PART_1_TITLE_uz, 
-    PART_1_1_TEXT_uz, 
-    PART_1_2_TEXT_uz, 
-    PART_1_3_TEXT_uz, 
-    PART_2_TITLE_uz, 
-    PART_2_1_TEXT_uz, 
-    PART_2_2_TEXT_uz, 
-    PART_2_3_TEXT_uz,
-    PART_CONCLUSION_uz,
-    PART_REFS)
+    PART_INTRO_translated,
+    section_header, PART_1_TITLE_translated, 
+    PART_1_1_TEXT_translated, 
+    PART_1_2_TEXT_translated, 
+    PART_1_3_TEXT_translated, 
+    section_header, PART_2_TITLE_translated, 
+    PART_2_1_TEXT_translated, 
+    PART_2_2_TEXT_translated, 
+    PART_2_3_TEXT_translated,
+    PART_CONCLUSION_translated,
+    PART_REFS,
+    "ILOVA" if translation_lang == "UZ" else "ПРИЛОЖЕНИЕ" if translation_lang == "RU" else "APPENDIX"
+)
 
 # ----------------------------------------------------------------------------
 
@@ -820,10 +823,10 @@ update_progress("Saving translated files")
 os.makedirs(f"draft/{translation_lang}", exist_ok=True)
 
 with open(f"draft/{translation_lang}/THESIS_PLAN_{translation_lang}.txt", "w", encoding="utf-8") as f:
-    f.write(THESIS_PLAN_uz)
+    f.write(THESIS_PLAN_translated)
 
 with open(f"draft/{translation_lang}/THESIS_MAIN_TEXT_{translation_lang}.txt", "w", encoding="utf-8") as f:
-    f.write(THESIS_MAIN_TEXT_UZ)
+    f.write(THESIS_MAIN_TEXT_TRANSLATED)
 
 update_progress("Generation complete!")
 pbar.close()
