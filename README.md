@@ -1,5 +1,7 @@
 # Thesis Generator 📚
 
+*Read this in other languages: [Русский](README.ru.md), [O'zbek](README.uz.md)*
+
 An automated tool that analyzes source code files and generates a structured thesis document using Large Language Models through API integration.
 
 ## Prerequisites ✅
@@ -67,6 +69,8 @@ python first_draft.py
 4. If translation is enabled, additional files will be generated in:
    - `draft/RU/` for Russian translation
    - `draft/UZ/` for Uzbek translation
+
+> **Note:** The generated content is a first draft and should be carefully reviewed and edited. This is especially important for translated versions.
 
 
 ## Output Structure 📋
