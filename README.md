@@ -99,3 +99,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Support ❓
 
 For issues and feature requests, please create an issue in the repository.
+
+## Acknowledgements 🙏
+
+Special thanks to Google for providing free access to the Gemini API.
