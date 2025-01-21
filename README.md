@@ -1,14 +1,14 @@
-# Thesis Generator
+# Thesis Generator 📚
 
 An automated tool that analyzes source code files and generates a structured thesis document.
 
-## Prerequisites
+## Prerequisites ✅
 
 - Python 3.8 or higher
 - Access to an OpenAI-compatible API (Google, Anthropic, or OpenAI)
 - Project source code files for analysis
 
-## Installation
+## Installation 🛠️
 
 1. Clone the repository:
 ```bash
@@ -48,7 +48,7 @@ Important configuration notes:
 - **TRANSLATION_LANG**: Use `RU` for Russian translation or `UZ` for Uzbek translation
 
 
-## Usage
+## Usage 🚀
 
 1. Place your project source code files in the `project_files` directory.
 
@@ -66,7 +66,7 @@ python first_draft.py
    - `draft/UZ/` for Uzbek translation
 
 
-## Output Structure
+## Output Structure 📋
 
 The generated thesis follows this structure:
 
@@ -92,14 +92,10 @@ The generated thesis follows this structure:
 
 6. Appendix
 
-## Contributing
+## Contributing 🤝
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Support
+## Support ❓
 
 For issues and feature requests, please create an issue in the repository.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
