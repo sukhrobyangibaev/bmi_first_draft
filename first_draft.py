@@ -8,9 +8,9 @@ from config import Config
 config = Config.from_env()
 
 # Calculate total steps based on actual operations
-TOTAL_STEPS = 13  # Base steps for English content
+TOTAL_STEPS = 14  # Base steps for English content
 if config.TRANSLATION_LANG:
-    TOTAL_STEPS += 12  # Additional steps for translation
+    TOTAL_STEPS += 14  # Additional steps for translation
 
 pbar = tqdm(total=TOTAL_STEPS, desc="Starting thesis generation", 
             bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]')
