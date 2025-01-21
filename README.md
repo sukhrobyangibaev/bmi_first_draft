@@ -25,7 +25,14 @@ pip install -r requirements.txt
 
 3. Create environment configuration:
 ```bash
+# For Unix/Linux/MacOS
 cp .env.example .env
+
+# For Windows (Command Prompt)
+copy .env.example .env
+
+# For Windows (PowerShell)
+Copy-Item .env.example .env
 ```
 
 4. Configure your `.env` file with appropriate settings:

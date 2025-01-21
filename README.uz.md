@@ -25,7 +25,14 @@ pip install -r requirements.txt
 
 3. Atrof-muhit konfiguratsiyasini yarating:
 ```bash
+# Unix/Linux/MacOS uchun
 cp .env.example .env
+
+# Windows (Command Prompt) uchun
+copy .env.example .env
+
+# Windows (PowerShell) uchun
+Copy-Item .env.example .env
 ```
 
 4. `.env` faylingizni tegishli sozlamalar bilan konfiguratsiya qiling:
