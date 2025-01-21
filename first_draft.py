@@ -5,8 +5,6 @@ import time
 from tqdm import tqdm
 from dotenv import load_dotenv
 
-pbar = tqdm(total=25, desc="Processing")
-
 load_dotenv()
 
 class Config:
@@ -19,6 +17,22 @@ class Config:
         self.TRANSLATION_LANG = os.environ.get("TRANSLATION_LANG")
 
 config = Config()
+
+# Calculate total steps based on actual operations
+TOTAL_STEPS = 13  # Base steps for English content
+if config.TRANSLATION_LANG:
+    TOTAL_STEPS += 12  # Additional steps for translation
+
+pbar = tqdm(total=TOTAL_STEPS, desc="Starting thesis generation", 
+            bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]')
+
+# Group progress updates into logical sections
+def update_progress(desc):
+    """Update progress bar with description and increment"""
+    pbar.set_description(desc)
+    pbar.update(1)
+
+
 # ---------------------------------
 class Part1(BaseModel):
     part_1_title: str
@@ -93,10 +107,7 @@ def get_chat_completion(system_message, user_message, max_retries=3, base_delay=
             print(f"Attempt {attempt + 1} failed. Retrying in {delay} seconds... Error: {str(e)}")
             time.sleep(delay)
 
-pbar.update(1)
-# --------------------------------------
-pbar.set_description('Reading source code content')
-
+update_progress("Reading source code files")
 folder_path = config.PROJECT_FILES_DIR
 filepaths = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
 file_contents = read_files(filepaths)
@@ -105,10 +116,7 @@ source_code_content = ""
 for filepath, content in file_contents.items():
     source_code_content += f"--- {filepath} ---\n{content}\n"
 
-pbar.update(1)
-# ----------------------------------------------------------------------------
-pbar.set_description('Generating software features description')
-
+update_progress("Analyzing software features")
 software_features_sys_msg = (
     "I am writing a dissertation chapter that requires a detailed explanation of a software application I created. " 
     "Please outline all the application's features, functionalities, user interaction flows, and overall capabilities "
@@ -117,10 +125,7 @@ software_features_sys_msg = (
 
 SOFTWARE_FEATURES_TEXT = get_chat_completion(software_features_sys_msg, source_code_content)
 
-pbar.update(1)
-# ----------------------------------------------------------------------------
-pbar.set_description('Generating thesis plan outline')
-
+update_progress("Generating thesis plan structure")
 thesis_plan_sys_msg = """
 I am an undergraduate student working on my bachelor's thesis. I have developed a preliminary plan for my project, which is outlined below. This plan's structure must remain intact; only modifications within the square brackets [] are permissible:
 
@@ -148,7 +153,7 @@ The subject of the graduation thesis: Define the specific aspect, property, or r
 # APPENDIX
 
 ---
-I will provide you with a detailed description of my project's features and functionality. Based on this information, please help me modify thesis plan by suggesting appropriate headings within the square brackets.
+I will provide you with a detailed description of my project's features and functionality. Based on this information, please help me modify thesis plan by suggesting appropriate headings within the square brackets.
 Do not include the square brackets in the response.
 """
 
@@ -205,9 +210,7 @@ APPENDIX
            SEQUENCE_DEVELOPMENT_2_2, 
            INSTRUCTIONS_2_3)
 
-pbar.update(1)
-# ----------------------------------------------------------------------------
-pbar.set_description('Generating section 2.3-§')
+update_progress("Generating section 2.3-§")
 
 sys_msg_3 = """You are helping me to write graduation thesis.
 I am an undergraduate student writing my graduation thesis. I need to adhere to the following plan:
@@ -259,9 +262,7 @@ APPENDIX
     SEQUENCE_DEVELOPMENT_2_2, 
     PART_2_3_TEXT)
 
-pbar.update(1)
-# ----------------------------------------------------------------------------
-pbar.set_description('Generating section 2.2-§')
+update_progress("Generating section 2.2-§")
 
 sys_msg_4 = """You are helping me to write graduation thesis.
 I am an undergraduate student writing my graduation thesis. I need to adhere to the following plan:
@@ -314,9 +315,7 @@ APPENDIX
     PART_2_2_TEXT.replace('2.2-§.', '', 1), 
     PART_2_3_TEXT.replace('2.3-§.', '', 1))
 
-pbar.update(1)
-# ----------------------------------------------------------------------------
-pbar.set_description('Generating section 2.1-§')
+update_progress("Generating section 2.1-§")
 
 sys_msg_5 = """You are helping me to write graduation thesis.
 I am an undergraduate student writing my graduation thesis. I need to adhere to the following plan:
@@ -347,7 +346,6 @@ PART I: {}
 1.3-§. {}
 
 PART II: {}
-
 2.1-§. {}
 
 2.2-§. {}
@@ -369,9 +367,7 @@ APPENDIX
     PART_2_2_TEXT.replace('2.2-§.', '', 1), 
     PART_2_3_TEXT.replace('2.3-§.', '', 1))
 
-pbar.update(1)
-# ----------------------------------------------------------------------------
-pbar.set_description('Generating section 1.1-§')
+update_progress("Generating section 1.1-§")
 
 sys_msg_part_1 = """I am an undergraduate student writing my graduation thesis.
 You are helping me to write this graduation thesis."""
@@ -428,9 +424,7 @@ APPENDIX
     PART_2_2_TEXT, 
     PART_2_3_TEXT)
 
-pbar.update(1)
-# ----------------------------------------------------------------------------
-pbar.set_description('Generating section 1.2-§')
+update_progress("Generating section 1.2-§")
 
 user_msg_part_1_2 = """here is my draft:
 {0}
@@ -482,9 +476,7 @@ APPENDIX
     PART_2_1_TEXT, 
     PART_2_2_TEXT, 
     PART_2_3_TEXT)
-pbar.update(1)
-# ----------------------------------------------------------------------------
-pbar.set_description('Generating section 1.3-§')
+update_progress("Generating section 1.3-§")
 
 user_msg_part_1_3 = """here is my draft:
 {0}
@@ -537,9 +529,7 @@ APPENDIX
     PART_2_2_TEXT, 
     PART_2_3_TEXT)
 
-pbar.update(1)
-# ----------------------------------------------------------------------------
-pbar.set_description('Generating introduction section')
+update_progress("Generating introduction section")
 
 sys_msg_intro = """I am an undergraduate student writing my graduation thesis.
 You are helping me to write this graduation thesis."""
@@ -603,9 +593,7 @@ APPENDIX
     PART_2_2_TEXT, 
     PART_2_3_TEXT)
 
-pbar.update(1)
-# ----------------------------------------------------------------------------
-pbar.set_description('Generating conclusion section')
+update_progress("Generating conclusion section")
 
 user_msg_part_conclusion = """here is my draft:
 {0}
@@ -655,9 +643,7 @@ APPENDIX
     PART_2_3_TEXT,
     PART_CONCLUSION)
 
-pbar.update(1)
-# ----------------------------------------------------------------------------
-pbar.set_description('Generating list of used literature')
+update_progress("Generating list of used literature")
 
 user_msg_part_refs = """here is my draft:
 {0}
@@ -710,9 +696,7 @@ APPENDIX
     PART_CONCLUSION,
     PART_REFS)
 
-# ----------------------------------------------------------------------------
-
-pbar.set_description('Saving EN files')
+update_progress("Saving generated files")
 
 # Create directories if they don't exist
 os.makedirs("draft/EN", exist_ok=True)
@@ -723,10 +707,14 @@ with open("draft/EN/THESIS_PLAN_EN.txt", "w", encoding="utf-8") as f:
 with open("draft/EN/THESIS_MAIN_TEXT_EN.txt", "w", encoding="utf-8") as f:
     f.write(THESIS_MAIN_TEXT)
 
-pbar.update(1)
+update_progress("Generation complete!")
 
-# ----------------------------------------------------------------------------
+# Close progress bar if no translation is needed
+if not config.TRANSLATION_LANG:
+    pbar.close()
+    exit()
 
+# Translation code continues below...
 translation_lang = config.TRANSLATION_LANG
 target_language = "Uzbek" if translation_lang == "UZ" else "Russian" if translation_lang == "RU" else "Unknown"
 
@@ -736,49 +724,40 @@ Your task is to translate it into {}, maintaining a formal and academic tone thr
 Please provide the translation as plain text only, 
 without any markdown formatting or additional commentary.""".format(target_language)
 
-pbar.set_description('Translating introduction to ' + target_language)
+update_progress(f"Translating introduction to {target_language}")
 PART_INTRO_uz = get_chat_completion(sys_msg_translate_uz, PART_INTRO)
-pbar.update(1)
 
-pbar.set_description('Translating PART I title to ' + target_language)
+update_progress(f"Translating Part I (Title & Section 1.1)")
 PART_1_TITLE_uz = get_chat_completion(sys_msg_translate_uz, PART_1_TITLE)
-pbar.update(1)
 
-pbar.set_description('Translating section 1.1-§ to ' + target_language)
+update_progress(f"Translating section 1.1-§ to {target_language}")
 PART_1_1_TEXT_uz = get_chat_completion(sys_msg_translate_uz, PART_1_1_TEXT)
-pbar.update(1)
 
-pbar.set_description('Translating section 1.2-§ to ' + target_language)
+update_progress(f"Translating section 1.2-§ to {target_language}")
 PART_1_2_TEXT_uz = get_chat_completion(sys_msg_translate_uz, PART_1_2_TEXT)
-pbar.update(1)
 
-pbar.set_description('Translating section 1.3-§ to ' + target_language)
+update_progress(f"Translating section 1.3-§ to {target_language}")
 PART_1_3_TEXT_uz = get_chat_completion(sys_msg_translate_uz, PART_1_3_TEXT)
-pbar.update(1)
 
-pbar.set_description('Translating PART II title to ' + target_language)
+update_progress(f"Translating Part I (Sections 1.2-1.3)")
+
+update_progress(f"Translating PART II title to {target_language}")
 PART_2_TITLE_uz = get_chat_completion(sys_msg_translate_uz, PART_2_TITLE)
-pbar.update(1)
 
-pbar.set_description('Translating section 2.1-§ to ' + target_language)
+update_progress(f"Translating section 2.1-§ to {target_language}")
 PART_2_1_TEXT_uz = get_chat_completion(sys_msg_translate_uz, PART_2_1_TEXT)
-pbar.update(1)
 
-pbar.set_description('Translating section 2.2-§ to ' + target_language)
+update_progress(f"Translating section 2.2-§ to {target_language}")
 PART_2_2_TEXT_uz = get_chat_completion(sys_msg_translate_uz, PART_2_2_TEXT)
-pbar.update(1)
 
-pbar.set_description('Translating section 2.3-§ to ' + target_language)
+update_progress(f"Translating section 2.3-§ to {target_language}")
 PART_2_3_TEXT_uz = get_chat_completion(sys_msg_translate_uz, PART_2_3_TEXT)
-pbar.update(1)
 
-pbar.set_description('Translating conclusion to ' + target_language)
+update_progress(f"Translating conclusion to {target_language}")
 PART_CONCLUSION_uz = get_chat_completion(sys_msg_translate_uz, PART_CONCLUSION)
-pbar.update(1)
 
-pbar.set_description('Translating thesis plan to ' + target_language)
+update_progress(f"Translating thesis plan to {target_language}")
 THESIS_PLAN_uz = get_chat_completion(sys_msg_translate_uz, THESIS_PLAN)
-pbar.update(1)
 
 THESIS_MAIN_TEXT_UZ = """
 {}
@@ -819,7 +798,7 @@ ILOVA
 
 # ----------------------------------------------------------------------------
 
-pbar.set_description('Saving translated files')
+update_progress("Saving translated files")
 
 os.makedirs(f"draft/{translation_lang}", exist_ok=True)
 
@@ -829,5 +808,5 @@ with open(f"draft/{translation_lang}/THESIS_PLAN_{translation_lang}.txt", "w", e
 with open(f"draft/{translation_lang}/THESIS_MAIN_TEXT_{translation_lang}.txt", "w", encoding="utf-8") as f:
     f.write(THESIS_MAIN_TEXT_UZ)
 
-pbar.update(1)
+update_progress("Generation complete!")
 pbar.close()
