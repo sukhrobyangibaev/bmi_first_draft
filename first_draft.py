@@ -23,17 +23,32 @@ class Config:
         """Create Config instance from environment variables."""
         load_dotenv()
         
+        low_rate_limits = os.environ.get("LOW_RATE_LIMITS", "").lower()
         return cls(
             API_KEY=os.environ.get("API_KEY", ""),
             BASE_URL=os.environ.get("BASE_URL", ""),
             MODEL=os.environ.get("MODEL", ""),
-            LOW_RATE_LIMITS=os.environ.get("LOW_RATE_LIMITS") == "true",
+            LOW_RATE_LIMITS=low_rate_limits in ("true", "1", "yes"),
             PROJECT_FILES_DIR=os.environ.get("PROJECT_FILES_DIR", ""),
             TRANSLATION_LANG=os.environ.get("TRANSLATION_LANG")
         )
 
-# Initialize config
+    def validate(self) -> None:
+        """Validates the configuration settings."""
+        if not self.API_KEY:
+            raise ValueError("API_KEY is required")
+        if not self.BASE_URL:
+            raise ValueError("BASE_URL is required")
+        if not self.MODEL:
+            raise ValueError("MODEL is required")
+        if not os.path.isdir(self.PROJECT_FILES_DIR):
+            raise ValueError(f"PROJECT_FILES_DIR '{self.PROJECT_FILES_DIR}' does not exist")
+        if self.TRANSLATION_LANG and self.TRANSLATION_LANG not in ("RU", "UZ"):
+            raise ValueError("TRANSLATION_LANG must be either 'RU' or 'UZ'")
+
+# Initialize and validate config
 config = Config.from_env()
+config.validate()
 
 # Calculate total steps based on actual operations
 TOTAL_STEPS = 14  # Base steps for English content
