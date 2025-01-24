@@ -909,7 +909,7 @@ if not config.TRANSLATION_LANG:
 
 # Translation code continues below...
 translation_lang = config.TRANSLATION_LANG
-target_language = "Uzbek" if translation_lang == "UZ" else "Russian" if translation_lang == "RU" else "Unknown"
+target_language = "Uzbek (latin)" if translation_lang == "UZ" else "Russian" if translation_lang == "RU" else "Unknown"
 
 # Define section headers based on translation language
 section_header = "QISM" if translation_lang == "UZ" else "ЧАСТЬ" if translation_lang == "RU" else "PART"
