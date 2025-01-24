@@ -48,9 +48,9 @@ class Config:
 config = Config.from_env()
 config.validate()
 
-TOTAL_STEPS = 14
-if config.TRANSLATION_LANG:
-    TOTAL_STEPS += 13
+BASE_GENERATION_STEPS = 14
+TRANSLATION_STEPS = 13
+TOTAL_STEPS = BASE_GENERATION_STEPS + (TRANSLATION_STEPS if config.TRANSLATION_LANG else 0)
 
 pbar = tqdm(total=TOTAL_STEPS, desc="Starting thesis generation", 
             bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]')
@@ -145,7 +145,7 @@ for filepath, content in file_contents.items():
     source_code_content += f"--- {filepath} ---\n{content}\n"
 
 update_progress("Analyzing software features")
-software_features_sys_msg = (
+software_features_system_msg = (
     "You are a technical documentation expert analyzing software applications. "
     "Analyze the provided source code and create a detailed technical description that covers:\n"
     "1. Core functionalities and features\n"
@@ -157,10 +157,10 @@ software_features_sys_msg = (
     "The description should be suitable for an academic thesis."
 )
 
-SOFTWARE_FEATURES_TEXT = get_chat_completion(software_features_sys_msg, source_code_content)
+software_features_content = get_chat_completion(software_features_system_msg, source_code_content)
 
 update_progress("Generating thesis plan structure")
-thesis_plan_sys_msg = """You are an academic advisor helping structure a bachelor's thesis about software development.
+thesis_plan_system_msg = """You are an academic advisor helping structure a bachelor's thesis about software development.
 
 The thesis must follow this structure, replacing the placeholders in <angle brackets> with specific content based on the software description provided:
 
@@ -187,8 +187,8 @@ thesis_plan_response = CLIENT.beta.chat.completions.parse(
     model=config.MODEL,
     n=1,
     messages=[
-        {"role": "system", "content": thesis_plan_sys_msg},
-        {"role": "user", "content": SOFTWARE_FEATURES_TEXT}
+        {"role": "system", "content": thesis_plan_system_msg},
+        {"role": "user", "content": software_features_content}
     ],
     response_format=ThesisPlan
 )
@@ -236,7 +236,7 @@ APPENDIX
 
 update_progress("Generating section 2.3-§")
 
-sys_msg_3 = """You are a technical documentation specialist writing deployment and usage documentation for an academic thesis.
+system_msg_section_2_3 = """You are a technical documentation specialist writing deployment and usage documentation for an academic thesis.
 
 Using the provided software features description, create comprehensive documentation that covers:
 1. System requirements and prerequisites
@@ -249,7 +249,7 @@ Using the provided software features description, create comprehensive documenta
 Write in a formal academic style, focusing on clarity and technical accuracy. Include specific details from the software implementation where relevant.
 Minimum length: 1000 words."""
 
-PART_2_3_TEXT = get_chat_completion(sys_msg_3, SOFTWARE_FEATURES_TEXT)
+section_2_3_content = get_chat_completion(system_msg_section_2_3, software_features_content)
 
 THESIS_MAIN_TEXT = """INTRODUCTION
 Relevance of the graduation thesis
@@ -281,11 +281,11 @@ APPENDIX
     PART_2_TITLE, 
     DESIGN_CREATION_2_1, 
     SEQUENCE_DEVELOPMENT_2_2, 
-    PART_2_3_TEXT)
+    section_2_3_content)
 
 update_progress("Generating section 2.2-§")
 
-sys_msg_4 = """You are a software development methodologist documenting the implementation process for an academic thesis.
+system_msg_section_2_2 = """You are a software development methodologist documenting the implementation process for an academic thesis.
 
 Analyze the provided source code and describe the development process, including:
 1. Development methodology and approach
@@ -296,7 +296,7 @@ Analyze the provided source code and describe the development process, including
 
 Include relevant code snippets to illustrate important concepts. Write in formal academic style."""
 
-PART_2_2_TEXT = get_chat_completion(sys_msg_4, source_code_content)
+section_2_2_content = get_chat_completion(system_msg_section_2_2, source_code_content)
 
 THESIS_MAIN_TEXT = """INTRODUCTION
 Relevance of the graduation thesis
@@ -328,12 +328,12 @@ APPENDIX
     PROBLEM_STATEMENT_1_3, 
     PART_2_TITLE, 
     DESIGN_CREATION_2_1, 
-    PART_2_2_TEXT.replace('2.2-§.', '', 1), 
-    PART_2_3_TEXT.replace('2.3-§.', '', 1))
+    section_2_2_content, 
+    section_2_3_content)
 
 update_progress("Generating section 2.1-§")
 
-sys_msg_5 = """You are a software architecture expert assisting with a bachelor's thesis. Your task is to write a detailed technical design section that follows academic standards.
+system_msg_section_2_1 = """You are a software architecture expert assisting with a bachelor's thesis. Your task is to write a detailed technical design section that follows academic standards.
 
 Context:
 - This is for section 2.1-§ focusing on system architecture and technical design
@@ -363,7 +363,7 @@ Guidelines:
 
 Format the response as a cohesive academic section without any introductory or concluding meta-commentary.""".format(THESIS_MAIN_TEXT, PART_2_TITLE, DESIGN_CREATION_2_1)
 
-PART_2_1_TEXT = get_chat_completion(sys_msg_5, source_code_content)
+section_2_1_content = get_chat_completion(system_msg_section_2_1, source_code_content)
 
 THESIS_MAIN_TEXT = """INTRODUCTION
 Relevance of the graduation thesis
@@ -394,13 +394,13 @@ APPENDIX
     PRINCIPLES_1_2, 
     PROBLEM_STATEMENT_1_3, 
     PART_2_TITLE, 
-    PART_2_1_TEXT.replace('2.1-§.', '', 1), 
-    PART_2_2_TEXT.replace('2.2-§.', '', 1), 
-    PART_2_3_TEXT.replace('2.3-§.', '', 1))
+    section_2_1_content,
+    section_2_2_content,
+    section_2_3_content)
 
 update_progress("Generating section 1.1-§")
 
-sys_msg_part_1 = """You are an academic writing expert specializing in computer science and software engineering theses. You are assisting an undergraduate student with their graduation thesis.
+system_msg_academic_writing = """You are an academic writing expert specializing in computer science and software engineering theses. You are assisting an undergraduate student with their graduation thesis.
 
 Your responsibilities:
 1. Maintain formal academic writing standards
@@ -454,7 +454,7 @@ Format:
 
 Begin with section title and proceed directly with content.""".format(THESIS_MAIN_TEXT, PART_1_TITLE, GENERAL_ANALYSIS_1_1)
 
-PART_1_1_TEXT = get_chat_completion(sys_msg_part_1, user_msg_part_1_1)
+section_1_1_content = get_chat_completion(system_msg_academic_writing, user_msg_part_1_1)
 
 THESIS_MAIN_TEXT = """INTRODUCTION
 Relevance of the graduation thesis
@@ -485,13 +485,13 @@ LIST OF USED LITERATURE
 APPENDIX
 """.format(
     PART_1_TITLE, 
-    PART_1_1_TEXT, 
+    section_1_1_content, 
     PRINCIPLES_1_2, 
     PROBLEM_STATEMENT_1_3, 
     PART_2_TITLE, 
-    PART_2_1_TEXT, 
-    PART_2_2_TEXT, 
-    PART_2_3_TEXT)
+    section_2_1_content, 
+    section_2_2_content, 
+    section_2_3_content)
 
 update_progress("Generating section 1.2-§")
 
@@ -530,7 +530,7 @@ Format guidelines:
 
 Ensure content aligns with previous section 1.1 and sets up for section 1.3.""".format(THESIS_MAIN_TEXT, PART_1_TITLE, PRINCIPLES_1_2)
 
-PART_1_2_TEXT = get_chat_completion(sys_msg_part_1, user_msg_part_1_2)
+section_1_2_content = get_chat_completion(system_msg_academic_writing, user_msg_part_1_2)
 
 THESIS_MAIN_TEXT = """INTRODUCTION
 Relevance of the graduation thesis
@@ -561,13 +561,13 @@ LIST OF USED LITERATURE
 APPENDIX
 """.format(
     PART_1_TITLE, 
-    PART_1_1_TEXT, 
-    PART_1_2_TEXT, 
+    section_1_1_content, 
+    section_1_2_content, 
     PROBLEM_STATEMENT_1_3, 
     PART_2_TITLE, 
-    PART_2_1_TEXT, 
-    PART_2_2_TEXT, 
-    PART_2_3_TEXT)
+    section_2_1_content, 
+    section_2_2_content, 
+    section_2_3_content)
 update_progress("Generating section 1.3-§")
 
 user_msg_part_1_3 = """here is my draft:
@@ -601,7 +601,7 @@ Format:
 Note: Generate only the section content without any meta-commentary or introductory remarks.
 """.format(THESIS_MAIN_TEXT, PART_1_TITLE, PROBLEM_STATEMENT_1_3)
 
-PART_1_3_TEXT = get_chat_completion(sys_msg_part_1, user_msg_part_1_3)
+section_1_3_content = get_chat_completion(system_msg_academic_writing, user_msg_part_1_3)
 
 THESIS_MAIN_TEXT = """INTRODUCTION
 Relevance of the graduation thesis
@@ -632,17 +632,17 @@ LIST OF USED LITERATURE
 APPENDIX
 """.format(
     PART_1_TITLE, 
-    PART_1_1_TEXT, 
-    PART_1_2_TEXT, 
-    PART_1_3_TEXT, 
+    section_1_1_content, 
+    section_1_2_content, 
+    section_1_3_content, 
     PART_2_TITLE, 
-    PART_2_1_TEXT, 
-    PART_2_2_TEXT, 
-    PART_2_3_TEXT)
+    section_2_1_content, 
+    section_2_2_content, 
+    section_2_3_content)
 
 update_progress("Generating introduction section")
 
-sys_msg_intro = """You are an academic writing expert specializing in computer science and software engineering theses. You are assisting an undergraduate student with their graduation thesis.
+system_msg_intro = """You are an academic writing expert specializing in computer science and software engineering theses. You are assisting an undergraduate student with their graduation thesis.
 
 Your responsibilities:
 1. Maintain formal academic writing standards
@@ -704,7 +704,7 @@ Format:
 - Avoid meta-commentary or explanatory notes
 """.format(THESIS_MAIN_TEXT)
 
-PART_INTRO = get_chat_completion(sys_msg_intro, user_msg_part_intro)
+introduction_content = get_chat_completion(system_msg_intro, user_msg_part_intro)
 
 THESIS_MAIN_TEXT = """
 {}
@@ -731,15 +731,15 @@ LIST OF USED LITERATURE
   
 APPENDIX
 """.format(
-    PART_INTRO,
+    introduction_content,
     PART_1_TITLE, 
-    PART_1_1_TEXT, 
-    PART_1_2_TEXT, 
-    PART_1_3_TEXT, 
+    section_1_1_content, 
+    section_1_2_content, 
+    section_1_3_content, 
     PART_2_TITLE, 
-    PART_2_1_TEXT, 
-    PART_2_2_TEXT, 
-    PART_2_3_TEXT)
+    section_2_1_content, 
+    section_2_2_content, 
+    section_2_3_content)
 
 update_progress("Generating conclusion section")
 
@@ -776,7 +776,7 @@ Format:
 Note: Focus on synthesizing the thesis content rather than introducing new concepts.
 """.format(THESIS_MAIN_TEXT)
 
-PART_CONCLUSION = get_chat_completion(sys_msg_intro, user_msg_part_conclusion)
+conclusion_content = get_chat_completion(system_msg_intro, user_msg_part_conclusion)
 
 THESIS_MAIN_TEXT = """
 {}
@@ -803,16 +803,16 @@ LIST OF USED LITERATURE
   
 APPENDIX
 """.format(
-    PART_INTRO,
+    introduction_content,
     PART_1_TITLE, 
-    PART_1_1_TEXT, 
-    PART_1_2_TEXT, 
-    PART_1_3_TEXT, 
+    section_1_1_content, 
+    section_1_2_content, 
+    section_1_3_content, 
     PART_2_TITLE, 
-    PART_2_1_TEXT, 
-    PART_2_2_TEXT, 
-    PART_2_3_TEXT,
-    PART_CONCLUSION)
+    section_2_1_content, 
+    section_2_2_content, 
+    section_2_3_content,
+    conclusion_content)
 
 update_progress("Generating list of used literature")
 
@@ -848,7 +848,7 @@ Author(s). "Title." Journal/Source, vol. X, no. Y, Year, pp. XX-XX.
 Note: Generate only real, verifiable academic and technical sources that exist in the real world.
 """.format(THESIS_MAIN_TEXT)
 
-PART_REFS = get_chat_completion(sys_msg_intro, user_msg_part_refs)
+references_content = get_chat_completion(system_msg_intro, user_msg_part_refs)
 
 THESIS_MAIN_TEXT = """
 -------------------------------- INTRODUCTION --------------------------------
@@ -893,17 +893,17 @@ PART II: {}
   
 APPENDIX
 """.format(
-    PART_INTRO,
+    introduction_content,
     PART_1_TITLE, 
-    PART_1_1_TEXT, 
-    PART_1_2_TEXT, 
-    PART_1_3_TEXT, 
+    section_1_1_content, 
+    section_1_2_content, 
+    section_1_3_content, 
     PART_2_TITLE, 
-    PART_2_1_TEXT, 
-    PART_2_2_TEXT, 
-    PART_2_3_TEXT,
-    PART_CONCLUSION,
-    PART_REFS)
+    section_2_1_content, 
+    section_2_2_content, 
+    section_2_3_content,
+    conclusion_content,
+    references_content)
 
 update_progress("Saving generated files")
 
@@ -925,49 +925,47 @@ if not config.TRANSLATION_LANG:
 
 # Translation code continues below...
 translation_lang = config.TRANSLATION_LANG
-target_language = "Uzbek (latin)" if translation_lang == "UZ" else "Russian" if translation_lang == "RU" else "Unknown"
+target_language_name = "Uzbek (latin)" if translation_lang == "UZ" else "Russian" if translation_lang == "RU" else "Unknown"
+section_header_translated = "QISM" if translation_lang == "UZ" else "ЧАСТЬ" if translation_lang == "RU" else "PART"
 
-# Define section headers based on translation language
-section_header = "QISM" if translation_lang == "UZ" else "ЧАСТЬ" if translation_lang == "RU" else "PART"
-
-sys_msg_translate = """You are a professional translator specializing in academic texts. 
+system_msg_translation = """You are a professional translator specializing in academic texts. 
 I will provide you with a section of my graduation thesis written in English. 
 Your task is to translate it into {}, maintaining a formal and academic tone throughout. 
 Please provide the translation as plain text only, 
-without any markdown formatting or additional commentary.""".format(target_language)
+without any markdown formatting or additional commentary.""".format(target_language_name)
 
-update_progress(f"Translating introduction to {target_language}")
-PART_INTRO_translated = get_chat_completion(sys_msg_translate, PART_INTRO)
+update_progress(f"Translating introduction to {target_language_name}")
+PART_INTRO_translated = get_chat_completion(system_msg_translation, introduction_content)
 
 update_progress(f"Translating Part I (Title & Section 1.1)")
-PART_1_TITLE_translated = get_chat_completion(sys_msg_translate, PART_1_TITLE)
+PART_1_TITLE_translated = get_chat_completion(system_msg_translation, PART_1_TITLE)
 
-update_progress(f"Translating section 1.1-§ to {target_language}")
-PART_1_1_TEXT_translated = get_chat_completion(sys_msg_translate, PART_1_1_TEXT)
+update_progress(f"Translating section 1.1-§ to {target_language_name}")
+PART_1_1_TEXT_translated = get_chat_completion(system_msg_translation, section_1_1_content)
 
-update_progress(f"Translating section 1.2-§ to {target_language}")
-PART_1_2_TEXT_translated = get_chat_completion(sys_msg_translate, PART_1_2_TEXT)
+update_progress(f"Translating section 1.2-§ to {target_language_name}")
+PART_1_2_TEXT_translated = get_chat_completion(system_msg_translation, section_1_2_content)
 
-update_progress(f"Translating section 1.3-§ to {target_language}")
-PART_1_3_TEXT_translated = get_chat_completion(sys_msg_translate, PART_1_3_TEXT)
+update_progress(f"Translating section 1.3-§ to {target_language_name}")
+PART_1_3_TEXT_translated = get_chat_completion(system_msg_translation, section_1_3_content)
 
-update_progress(f"Translating PART II title to {target_language}")
-PART_2_TITLE_translated = get_chat_completion(sys_msg_translate, PART_2_TITLE)
+update_progress(f"Translating PART II title to {target_language_name}")
+PART_2_TITLE_translated = get_chat_completion(system_msg_translation, PART_2_TITLE)
 
-update_progress(f"Translating section 2.1-§ to {target_language}")
-PART_2_1_TEXT_translated = get_chat_completion(sys_msg_translate, PART_2_1_TEXT)
+update_progress(f"Translating section 2.1-§ to {target_language_name}")
+PART_2_1_TEXT_translated = get_chat_completion(system_msg_translation, section_2_1_content)
 
-update_progress(f"Translating section 2.2-§ to {target_language}")
-PART_2_2_TEXT_translated = get_chat_completion(sys_msg_translate, PART_2_2_TEXT)
+update_progress(f"Translating section 2.2-§ to {target_language_name}")
+PART_2_2_TEXT_translated = get_chat_completion(system_msg_translation, section_2_2_content)
 
-update_progress(f"Translating section 2.3-§ to {target_language}")
-PART_2_3_TEXT_translated = get_chat_completion(sys_msg_translate, PART_2_3_TEXT)
+update_progress(f"Translating section 2.3-§ to {target_language_name}")
+PART_2_3_TEXT_translated = get_chat_completion(system_msg_translation, section_2_3_content)
 
-update_progress(f"Translating conclusion to {target_language}")
-PART_CONCLUSION_translated = get_chat_completion(sys_msg_translate, PART_CONCLUSION)
+update_progress(f"Translating conclusion to {target_language_name}")
+PART_CONCLUSION_translated = get_chat_completion(system_msg_translation, conclusion_content)
 
-update_progress(f"Translating thesis plan to {target_language}")
-THESIS_PLAN_translated = get_chat_completion(sys_msg_translate, THESIS_PLAN)
+update_progress(f"Translating thesis plan to {target_language_name}")
+THESIS_PLAN_translated = get_chat_completion(system_msg_translation, THESIS_PLAN)
 
 THESIS_MAIN_TEXT_TRANSLATED = """
 {}
@@ -1013,16 +1011,16 @@ THESIS_MAIN_TEXT_TRANSLATED = """
 {}
 """.format(
     PART_INTRO_translated,
-    section_header, PART_1_TITLE_translated, 
+    section_header_translated, PART_1_TITLE_translated, 
     PART_1_1_TEXT_translated, 
     PART_1_2_TEXT_translated, 
     PART_1_3_TEXT_translated, 
-    section_header, PART_2_TITLE_translated, 
+    section_header_translated, PART_2_TITLE_translated, 
     PART_2_1_TEXT_translated, 
     PART_2_2_TEXT_translated, 
     PART_2_3_TEXT_translated,
     PART_CONCLUSION_translated,
-    PART_REFS,
+    references_content,
     "ILOVA" if translation_lang == "UZ" else "ПРИЛОЖЕНИЕ" if translation_lang == "RU" else "APPENDIX"
 )
 
