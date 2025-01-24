@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from typing import Optional
 from dotenv import load_dotenv
 
-# Move Config class from config.py
 @dataclass
 class Config:
     """Configuration settings for the thesis generator."""
@@ -46,19 +45,16 @@ class Config:
         if self.TRANSLATION_LANG and self.TRANSLATION_LANG not in ("RU", "UZ"):
             raise ValueError("TRANSLATION_LANG must be either 'RU' or 'UZ'")
 
-# Initialize and validate config
 config = Config.from_env()
 config.validate()
 
-# Calculate total steps based on actual operations
-TOTAL_STEPS = 14  # Base steps for English content
+TOTAL_STEPS = 14
 if config.TRANSLATION_LANG:
-    TOTAL_STEPS += 13  # Additional steps for translation
+    TOTAL_STEPS += 13
 
 pbar = tqdm(total=TOTAL_STEPS, desc="Starting thesis generation", 
             bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]')
 
-# Group progress updates into logical sections
 def update_progress(desc):
     """Update progress bar with description and increment"""
     pbar.set_description(desc)
@@ -150,44 +146,40 @@ for filepath, content in file_contents.items():
 
 update_progress("Analyzing software features")
 software_features_sys_msg = (
-    "I am writing a dissertation chapter that requires a detailed explanation of a software application I created. " 
-    "Please outline all the application's features, functionalities, user interaction flows, and overall capabilities "
-    "based on source code. The description should be comprehensive and suitable for an academic context."
-    )
+    "You are a technical documentation expert analyzing software applications. "
+    "Analyze the provided source code and create a detailed technical description that covers:\n"
+    "1. Core functionalities and features\n"
+    "2. System architecture and key components\n"
+    "3. Data flows and processing logic\n"
+    "4. User interaction patterns\n"
+    "5. Integration points and external dependencies\n\n"
+    "Focus on technical accuracy and provide specific examples from the code where relevant. "
+    "The description should be suitable for an academic thesis."
+)
 
 SOFTWARE_FEATURES_TEXT = get_chat_completion(software_features_sys_msg, source_code_content)
 
 update_progress("Generating thesis plan structure")
-thesis_plan_sys_msg = """
-I am an undergraduate student working on my bachelor's thesis. I have developed a preliminary plan for my project, which is outlined below. This plan's structure must remain intact; only modifications within the square brackets [] are permissible:
+thesis_plan_sys_msg = """You are an academic advisor helping structure a bachelor's thesis about software development.
 
-# INTRODUCTION  
-Relevance of the graduation thesis: Briefly explain the importance and timeliness of your chosen topic within the broader field of study. Why is this research necessary or valuable?  
-The purpose of this graduation thesis: Clearly state the main goal you aim to achieve with your research. What specific outcome do you hope to produce or demonstrate?  
-The object of the graduation thesis: Define the broader entity or area that your research will focus on. This is the general domain you are investigating.  
-The subject of the graduation thesis: Define the specific aspect, property, or relationship within the object that you will be directly studying. This is the specific focus of your investigation.  
-  
-# PART I: SYSTEMATIC ANALYSIS OF [OBJECT OF STUDY]  
-  
-1.1-§. General analysis of existing [relevant category/examples related to your object of study]: Analyze the current state of the field, existing methodologies, technologies, or theories relevant to your object of study.  
-1.2-§. Principles of [relevant methodology/technology/theory related to your subject of study]: Describe the fundamental concepts, principles, or workings of the key methods, technologies, or theories you will be utilizing or investigating. 1.3-§. Problem statement: Clearly identify the gap in knowledge, challenge, or problem that your thesis aims to address. This should logically flow from the analysis in the previous sections.  
-  
-# PART II. DEVELOPMENT OF A [TYPE OF SOLUTION/ANALYSIS/MODEL] FOR [SPECIFIC APPLICATION/TASK WITHIN THE OBJECT OF STUDY]  
-  
-2.1-§. Design and creation of the [foundation/structure/methodology] of the [solution/analysis/model]: Describe the planning and foundational steps involved in creating your solution, analysis, or model. This could involve database design, theoretical framework, experimental setup, etc.  
-2.2-§. Sequence of developing a [solution/analysis/model] for conducting [specific task/process]: Detail the steps and stages involved in the actual development, implementation, or execution of your solution, analysis, or model.  
-2.3-§. Instructions for using/applying the [solution/analysis/model]: Provide guidance on how to utilize, interpret, or apply the results of your work. 
+The thesis must follow this structure, replacing the placeholders in <angle brackets> with specific content based on the software description provided:
 
-# CONCLUSION
-  
-# LIST OF USED LITERATURE
-  
-# APPENDIX
+# INTRODUCTION
+[Standard introduction sections remain unchanged]
 
----
-I will provide you with a detailed description of my project's features and functionality. Based on this information, please help me modify thesis plan by suggesting appropriate headings within the square brackets.
-Do not include the square brackets in the response.
-"""
+# PART I: SYSTEMATIC ANALYSIS OF <software domain/category>
+1.1-§. Analysis of existing <specific type of software solutions>
+1.2-§. Core principles of <key technologies/frameworks used>
+1.3-§. Problem statement and requirements analysis
+
+# PART II: DEVELOPMENT OF <specific software solution name/type>
+2.1-§. System architecture and technical design
+2.2-§. Implementation methodology and development process
+2.3-§. Deployment and usage documentation
+
+[Remaining sections unchanged]
+
+Based on the software features description provided, suggest appropriate specific terms for the placeholders while maintaining academic rigor and technical precision. Format the response as a ThesisPlan object."""
 
 time.sleep(10)
 
@@ -230,7 +222,7 @@ PART II: {}
 
 CONCLUSION  
   
-LIST OF USED LITERATURE  
+LIST OF USED LITERATURE
   
 APPENDIX
 """.format(PART_1_TITLE, 
@@ -244,21 +236,18 @@ APPENDIX
 
 update_progress("Generating section 2.3-§")
 
-sys_msg_3 = """You are helping me to write graduation thesis.
-I am an undergraduate student writing my graduation thesis. I need to adhere to the following plan:
----
-{}
----
-Write the following section: 
-PART II: {}
-2.3-§. {}
+sys_msg_3 = """You are a technical documentation specialist writing deployment and usage documentation for an academic thesis.
 
-I will provide you with the features of my software.
-Respond in plain text only, without using any markdown formatting.
-Do not include any introductory or concluding remarks.
-Focus solely on generating the content for the specified section.
-The response should be at least 1000 words long.
-""".format(THESIS_PLAN, PART_2_TITLE, INSTRUCTIONS_2_3)
+Using the provided software features description, create comprehensive documentation that covers:
+1. System requirements and prerequisites
+2. Installation and configuration steps
+3. Detailed usage instructions with examples
+4. Common workflows and use cases
+5. Troubleshooting guidelines
+6. Best practices and recommendations
+
+Write in a formal academic style, focusing on clarity and technical accuracy. Include specific details from the software implementation where relevant.
+Minimum length: 1000 words."""
 
 PART_2_3_TEXT = get_chat_completion(sys_msg_3, SOFTWARE_FEATURES_TEXT)
 
@@ -296,21 +285,16 @@ APPENDIX
 
 update_progress("Generating section 2.2-§")
 
-sys_msg_4 = """You are helping me to write graduation thesis.
-I am an undergraduate student writing my graduation thesis. I need to adhere to the following plan:
----
-{}
----
-Write the following section: 
-PART II: {}
-2.2-§. {}
+sys_msg_4 = """You are a software development methodologist documenting the implementation process for an academic thesis.
 
-I will provide you with the source code of my software.
-Respond in plain text only, without using any markdown formatting.
-Do not include any introductory or concluding remarks.
-Focus solely on generating the content for the specified section.
-you can include code snippets.
-""".format(THESIS_MAIN_TEXT, PART_2_TITLE, SEQUENCE_DEVELOPMENT_2_2)
+Analyze the provided source code and describe the development process, including:
+1. Development methodology and approach
+2. Key implementation decisions and their rationale
+3. Critical code components and their interactions
+4. Technical challenges and solutions
+5. Testing and validation procedures
+
+Include relevant code snippets to illustrate important concepts. Write in formal academic style."""
 
 PART_2_2_TEXT = get_chat_completion(sys_msg_4, source_code_content)
 
@@ -349,20 +333,35 @@ APPENDIX
 
 update_progress("Generating section 2.1-§")
 
-sys_msg_5 = """You are helping me to write graduation thesis.
-I am an undergraduate student writing my graduation thesis. I need to adhere to the following plan:
+sys_msg_5 = """You are a software architecture expert assisting with a bachelor's thesis. Your task is to write a detailed technical design section that follows academic standards.
+
+Context:
+- This is for section 2.1-§ focusing on system architecture and technical design
+- The content should align with the following thesis structure:
 ---
 {}
 ---
-Write the following section: 
-PART II: {}
-2.1-§. {}
 
-I will provide you with the source code of my software.
-Do not include any introductory or concluding remarks.
-Focus solely on generating the content for the specified section.
-you can include code snippets.
-""".format(THESIS_MAIN_TEXT, PART_2_TITLE, DESIGN_CREATION_2_1)
+Requirements for PART II: {}
+Section 2.1-§. {}
+
+Please provide:
+1. High-level system architecture overview
+2. Detailed component design and interactions
+3. Key design patterns and architectural decisions
+4. Data structures and flow diagrams
+5. Security considerations and implementation
+6. Scalability and performance design choices
+
+Guidelines:
+- Include relevant UML diagrams or architectural schemas
+- Reference specific code implementations to support design choices
+- Maintain formal academic language and technical precision
+- Cite industry best practices where applicable
+- Include code snippets to illustrate key architectural components
+- Length should be approximately 2000-2500 words
+
+Format the response as a cohesive academic section without any introductory or concluding meta-commentary.""".format(THESIS_MAIN_TEXT, PART_2_TITLE, DESIGN_CREATION_2_1)
 
 PART_2_1_TEXT = get_chat_completion(sys_msg_5, source_code_content)
 
@@ -401,21 +400,59 @@ APPENDIX
 
 update_progress("Generating section 1.1-§")
 
-sys_msg_part_1 = """I am an undergraduate student writing my graduation thesis.
-You are helping me to write this graduation thesis."""
+sys_msg_part_1 = """You are an academic writing expert specializing in computer science and software engineering theses. You are assisting an undergraduate student with their graduation thesis.
+
+Your responsibilities:
+1. Maintain formal academic writing standards
+2. Use appropriate technical terminology
+3. Ensure logical flow and coherent structure
+4. Balance technical depth with clarity
+5. Follow academic citation practices
+
+Writing guidelines:
+- Use clear, precise language suitable for academic audiences
+- Support technical claims with evidence or references
+- Maintain consistent terminology throughout
+- Focus on analytical and critical discussion
+- Avoid colloquial language and informal expressions
+- Structure content with clear paragraphs and transitions
+
+Remember that this is an undergraduate thesis in software engineering, requiring both technical accuracy and academic rigor."""
 
 
-user_msg_part_1_1 = """here is my draft:
+user_msg_part_1_1 = """Context:
+Current thesis draft:
 {0}
----
-write 2000 words for the following section: 
-PART I: {1}
-1.1-§. {2}
 
-Do not include any introductory or concluding remarks like "Okay, here's the...".
-Focus solely on generating the content for the specified section.
-start with "{2}".
-""".format(THESIS_MAIN_TEXT, PART_1_TITLE, GENERAL_ANALYSIS_1_1)
+Task:
+Generate a 2000-word analysis section for:
+PART I: {1}
+Section 1.1-§. {2}
+
+Requirements:
+1. Begin directly with the section title "{2}"
+2. Provide comprehensive analysis of existing solutions in the field
+3. Include critical evaluation of current approaches
+4. Compare and contrast different methodologies
+5. Reference relevant academic literature and industry standards
+6. Discuss technological trends and their implications
+
+Structure guidelines:
+- Organize content into clear subsections
+- Use topic sentences to guide reader through analysis
+- Include specific examples and case studies
+- Build logical progression of ideas
+- Maintain consistent technical depth throughout
+- Connect analysis to thesis objectives
+
+Format:
+- Academic writing style
+- Technical precision in terminology
+- 2000 words (±5%)
+- No meta-commentary or introductory remarks
+- Direct integration with overall thesis structure
+
+Begin with section title and proceed directly with content.""".format(THESIS_MAIN_TEXT, PART_1_TITLE, GENERAL_ANALYSIS_1_1)
 
 PART_1_1_TEXT = get_chat_completion(sys_msg_part_1, user_msg_part_1_1)
 
@@ -458,17 +495,40 @@ APPENDIX
 
 update_progress("Generating section 1.2-§")
 
-user_msg_part_1_2 = """here is my draft:
+user_msg_part_1_2 = """Context:
+Current thesis draft:
 {0}
----
-write 1500 words for the following section: 
-PART I: {1}
-1.2-§. {2}
 
-Do not include any introductory or concluding remarks like "Okay, here's the...".
-Focus solely on generating the content for the specified section.
-start with "{2}".
-""".format(THESIS_MAIN_TEXT, PART_1_TITLE, PRINCIPLES_1_2)
+Task:
+Generate section 1.2-§ for:
+PART I: {1}
+Title: {2}
+
+Requirements:
+1. Length: 1500 words (±5%)
+2. Focus on core principles and theoretical foundations
+3. Analyze key technologies and frameworks
+4. Explain technical concepts with academic rigor
+5. Include relevant examples and implementations
+6. Connect principles to practical applications
+
+Structure:
+- Begin with section title "{2}"
+- Organize content into clear subsections
+- Use appropriate technical terminology
+- Include citations to academic sources
+- Progress from fundamental concepts to advanced applications
+- Maintain consistent technical depth throughout
+
+Format guidelines:
+- Academic writing style
+- Clear paragraph transitions
+- Technical precision in terminology
+- Direct integration with overall thesis structure
+- No meta-commentary or introductory remarks
+- Citations for technical standards and methodologies
+
+Ensure content aligns with previous section 1.1 and sets up for section 1.3.""".format(THESIS_MAIN_TEXT, PART_1_TITLE, PRINCIPLES_1_2)
 
 PART_1_2_TEXT = get_chat_completion(sys_msg_part_1, user_msg_part_1_2)
 
@@ -513,13 +573,32 @@ update_progress("Generating section 1.3-§")
 user_msg_part_1_3 = """here is my draft:
 {0}
 ---
-write 300 words for the following section: 
-PART I: {1}
-1.3-§. {2}
+Generate content for section 1.3-§ (Problem Statement and Requirements Analysis):
 
-Do not include any introductory or concluding remarks like "Okay, here's the...".
-Focus solely on generating the content for the specified section.
-Start with title of section: 1.3-$...
+Requirements:
+1. Length: 300 words
+2. Structure:
+   - Clear problem definition
+   - Specific technical requirements
+   - Functional requirements
+   - Non-functional requirements
+   - Constraints and limitations
+   - Success criteria
+
+Guidelines:
+- Use formal academic language
+- Reference findings from sections 1.1 and 1.2
+- Include measurable criteria where possible
+- Connect requirements to project objectives
+- Justify each requirement with technical rationale
+
+Format:
+- Start with section title: "1.3-§. {2}"
+- Organize into clear subsections
+- Use precise technical terminology
+- Maintain academic writing style
+
+Note: Generate only the section content without any meta-commentary or introductory remarks.
 """.format(THESIS_MAIN_TEXT, PART_1_TITLE, PROBLEM_STATEMENT_1_3)
 
 PART_1_3_TEXT = get_chat_completion(sys_msg_part_1, user_msg_part_1_3)
@@ -563,29 +642,66 @@ APPENDIX
 
 update_progress("Generating introduction section")
 
-sys_msg_intro = """I am an undergraduate student writing my graduation thesis.
-You are helping me to write this graduation thesis."""
+sys_msg_intro = """You are an academic writing expert specializing in computer science and software engineering theses. You are assisting an undergraduate student with their graduation thesis.
+
+Your responsibilities:
+1. Maintain formal academic writing standards
+2. Use appropriate technical terminology
+3. Ensure logical flow and coherent structure
+4. Balance technical depth with clarity
+5. Follow academic citation practices
+
+Writing guidelines:
+- Use clear, precise language suitable for academic audiences
+- Support technical claims with evidence or references
+- Maintain consistent terminology throughout
+- Focus on analytical and critical discussion
+- Avoid colloquial language and informal expressions
+- Structure content with clear paragraphs and transitions
+
+Remember that this is an undergraduate thesis in software engineering, requiring both technical accuracy and academic rigor."""
 
 
 user_msg_part_intro = """here is my draft:
 {0}
 ---
-Write INTRODUCTION part of this graduation thesis.
+Generate the INTRODUCTION section with the following components:
 
-Relevance of the graduation thesis
-130-150 words 
+1. Relevance of the graduation thesis (130-150 words)
+   - Current state of the field
+   - Industry significance
+   - Technical challenges addressed
+   - Innovation potential
 
-The purpose of this graduation thesis  
-170-190 words 
+2. The purpose of this graduation thesis (170-190 words)
+   - Primary objectives
+   - Research questions
+   - Expected contributions
+   - Scope of investigation
 
-The object of the graduation thesis  
-15-20 words  
+3. The object of the graduation thesis (15-20 words)
+   - Clear identification of the research focus
+   - Specific system or technology being studied
 
-The subject of the graduation thesis  
-110-120 words  
+4. The subject of the graduation thesis (110-120 words)
+   - Specific aspects being investigated
+   - Technical parameters
+   - Methodological approach
+   - Research boundaries
 
-Do not include any introductory or concluding remarks like "Okay, here's the...".
-Focus solely on generating the content for the specified section.
+Requirements:
+- Maintain consistent technical terminology
+- Connect each section logically
+- Reference current industry trends
+- Align with thesis scope and objectives
+- Use formal academic language
+- Include relevant citations where appropriate
+
+Format:
+- Present each section with its heading
+- Adhere strictly to word limits
+- Use clear paragraph structure
+- Avoid meta-commentary or explanatory notes
 """.format(THESIS_MAIN_TEXT)
 
 PART_INTRO = get_chat_completion(sys_msg_intro, user_msg_part_intro)
@@ -630,11 +746,34 @@ update_progress("Generating conclusion section")
 user_msg_part_conclusion = """here is my draft:
 {0}
 ---
-Write CONCLUSION for this graduation thesis.
-250-300 words 
+Generate the CONCLUSION section for this graduation thesis.
 
-Do not include any introductory or concluding remarks like "Okay, here's the...".
-Focus solely on generating the content for the specified section.
+Requirements:
+1. Length: 250-300 words
+2. Structure:
+   - Summary of key findings and achievements
+   - Evaluation of objectives met
+   - Technical contributions and innovations
+   - Practical implications and applications
+   - Limitations and challenges encountered
+   - Future research directions and recommendations
+
+Content guidelines:
+- Connect conclusions to objectives stated in introduction
+- Reference specific outcomes from Parts I and II
+- Highlight technical significance of results
+- Provide evidence-based conclusions
+- Balance theoretical and practical implications
+- Maintain academic tone and terminology
+
+Format:
+- Single cohesive section without subheadings
+- Clear paragraph transitions
+- Logical progression of ideas
+- No new information or citations
+- No meta-commentary or introductory remarks
+
+Note: Focus on synthesizing the thesis content rather than introducing new concepts.
 """.format(THESIS_MAIN_TEXT)
 
 PART_CONCLUSION = get_chat_completion(sys_msg_intro, user_msg_part_conclusion)
@@ -680,11 +819,33 @@ update_progress("Generating list of used literature")
 user_msg_part_refs = """here is my draft:
 {0}
 ---
-write LIST OF USED LITERATURE for this graduation thesis in MLA format.
-write real world 15-20 references.
+Generate the LIST OF USED LITERATURE section following these requirements:
 
-Do not include any introductory or concluding remarks like "Okay, here's the...".
-Focus solely on generating the content for the specified section.
+Format Requirements:
+1. Use MLA 9th edition citation format
+2. Number of references: 15-20 entries
+3. Alphabetically ordered by author's last name
+
+Source Types to Include:
+- Academic journal articles (minimum 6)
+- Technical books and textbooks (3-4)
+- Conference proceedings (2-3)
+- Industry standards and documentation (2-3)
+- Recent technical reports or whitepapers (2-3)
+- Relevant software documentation or specifications (1-2)
+
+Selection Criteria:
+- Published within the last 5-7 years (except for fundamental works)
+- Directly relevant to thesis topics and technologies
+- Include sources referenced in all major sections
+- Mix of theoretical foundations and practical applications
+- Prefer peer-reviewed sources
+- Include at least 2-3 high-impact publications
+
+Format each entry according to MLA style:
+Author(s). "Title." Journal/Source, vol. X, no. Y, Year, pp. XX-XX.
+
+Note: Generate only real, verifiable academic and technical sources that exist in the real world.
 """.format(THESIS_MAIN_TEXT)
 
 PART_REFS = get_chat_completion(sys_msg_intro, user_msg_part_refs)
