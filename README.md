@@ -1,6 +1,6 @@
 # Thesis Generator 📚
 
-*Read this in other languages: [Русский](README.ru.md), [O'zbek](README.uz.md)*
+*Read this in other languages: [Русский](docs/translations/README.ru.md), [O'zbek](docs/translations/README.uz.md)*
 
 An automated tool that analyzes source code files and generates a structured thesis document using Large Language Models through API integration.
 
