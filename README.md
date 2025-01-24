@@ -56,6 +56,14 @@ Important configuration notes:
 - **TRANSLATE**: Set to `true` if you want translation, `false` if you only need English
 - **TRANSLATION_LANG**: Use `RU` for Russian translation or `UZ` for Uzbek translation
 
+5. Create the project files directory:
+```bash
+# For Unix/Linux/MacOS
+mkdir project_files
+
+# For Windows (Command Prompt or PowerShell)
+md project_files
+```
 
 ## Usage 🚀
 

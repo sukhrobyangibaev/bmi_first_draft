@@ -56,6 +56,15 @@ Muhim konfiguratsiya eslatmalari:
 - **TRANSLATE**: Agar tarjima kerak bo'lsa `true` ga, faqat ingliz tili kerak bo'lsa `false` ga o'rnating
 - **TRANSLATION_LANG**: Ruscha tarjima uchun `RU` yoki O'zbekcha tarjima uchun `UZ` dan foydalaning
 
+5. Loyiha fayllari uchun papka yarating:
+```bash
+# Unix/Linux/MacOS uchun
+mkdir project_files
+
+# Windows (Command Prompt yoki PowerShell) uchun
+md project_files
+```
+
 ## Foydalanish 🚀
 
 1. Loyihangizning asosiy manba kod fayllarini `project_files` katalogiga joylashtiring:
