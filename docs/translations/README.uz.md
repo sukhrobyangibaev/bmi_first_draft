@@ -2,6 +2,8 @@
 
 *Boshqa tillarda o'qing: [English](../../README.md), [Русский](README.ru.md)*
 
+> ⚠️ **Muhim eslatma:** Ushbu README fayli avtomatik tarzda tarjima qilingan va xatoliklar bo'lishi mumkin. Agar siz xatoliklarni to'g'rilashni istasangiz, iltimos Pull Request yuborishdan tortinmang.
+
 Ushbu avtomatlashtirilgan vosita manba kod fayllarini tahlil qiladi va API integratsiyasi orqali Katta Til Modellari (LLM) yordamida tuzilgan bitiruv malakaviy ishi hujjatini yaratadi.
 
 ## Old shartlar ✅
