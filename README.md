@@ -2,6 +2,8 @@
 
 *Read this in other languages: [Русский](docs/translations/README.ru.md), [O'zbek](docs/translations/README.uz.md)*
 
+https://github.com/user-attachments/assets/0f3ca0f0-105b-4d6b-9fb4-a853e98f3343
+
 An automated tool that analyzes source code files and generates a structured thesis document using Large Language Models through API integration.
 
 ## Prerequisites ✅
